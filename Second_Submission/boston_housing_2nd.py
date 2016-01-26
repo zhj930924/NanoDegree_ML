@@ -4,6 +4,7 @@
 import numpy as np
 import pylab as pl
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.cross_validation import train_test_split
@@ -27,7 +28,7 @@ def explore_city_data(city_data):
     # Get the labels and features from the housing data
     housing_prices = city_data.target
     housing_features = city_data.data
-
+    price = pd.DataFrame(housing_prices)
     ###################################
     ### Step 1. YOUR CODE GOES HERE ###
     ###################################
@@ -35,6 +36,14 @@ def explore_city_data(city_data):
     # Please calculate the following values using the Numpy library
     # Size of data (number of houses)?
     Size = np.size(housing_prices)
+    # Show the histogram of housing price distribution
+    plt.figure()
+    price.plot(kind = 'hist')
+    print "\n"  
+    # Show the percentile of housing price
+    print "25th percentile:", np.percentile(housing_prices,25)
+    print "75th percentile:", np.percentile(housing_prices,75)
+                       
     # Number of features?
     NumFeatures = np.shape(housing_features)[1]
     # Minimum price?
@@ -52,7 +61,7 @@ def explore_city_data(city_data):
                             [Size, NumFeatures, MinPrice, MaxPrice, MeanPrice, MedianPrice, StDev]])
     print pd.DataFrame(result_clean)
     print "\n"
-                            
+
 def split_data(city_data):
     """Randomly shuffle the sample set. Divide it into 70 percent training and 30 percent testing data."""
 
@@ -168,8 +177,7 @@ def fit_predict_model(city_data):
     # Setup a Decision Tree Regressor
     regressor = DecisionTreeRegressor()
 
-    parameters = {'max_depth': (1,2,3,4,5,6,7,8,9,10),
-                  'max_features': (2,5,10,'auto')}
+    parameters = {'max_depth': (1,2,3,4,5,6,7,8,9,10)}
 
     ###################################
     ### Step 4. YOUR CODE GOES HERE ###
@@ -186,21 +194,20 @@ def fit_predict_model(city_data):
     # http://scikit-learn.org/stable/modules/generated/sklearn.grid_search.GridSearchCV.html#sklearn.grid_search.GridSearchCV
     reg = GridSearchCV(estimator = regressor, 
                        param_grid = parameters, 
-                       scoring = scorer,
-                       cv = 10)
+                       scoring = scorer)
                        
     # Fit the learner to the training data to obtain the best parameter set
     print "Final Model: "
     print reg.fit(X, y)
     print "\n"
-    print "best parameters: ", reg.best_params_
-    print "\n"
+    best_reg = reg.best_estimator_
+    print "best estimator:", best_reg
     print "best score: ", reg.best_score_
     print "\n"
     
     # Use the model to predict the output of a particular sample
     x = [11.95, 0.00, 18.100, 0, 0.6590, 5.6090, 90.00, 1.385, 24, 680.0, 20.20, 332.09, 12.13]
-    y = reg.predict(x)
+    y = best_reg.predict(x)
     print "House: " + str(x)
     print "Prediction: " + str(y)
 
